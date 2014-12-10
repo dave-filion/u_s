@@ -1,5 +1,9 @@
 (ns u-s.core
+  (:require [taoensso.carmine :as car :refer (wcar)])
   (:gen-class))
+
+(def server1-conn {:pool {} :spec {:host "127.0.0.1" :port 6379}})
+(defmacro wcar* [& body] `(car/wcar server1-conn ~@body))
 
 (def raw-bag
   {"A" 3
@@ -14,6 +18,9 @@
    [0 0 9  0 0]
    [0 1 0  1 0]
    [1 0 0  0 1]])
+
+(def points
+  {:A 1})
 
 (defn print-row [row]
   (reduce #(str %1 " " %2) row))
@@ -30,5 +37,5 @@
     [(first bag) (rest bag)]))
 
 (defn -main
-  [& args]
-  (println (print-map raw-map)))
+  [& args])
+
