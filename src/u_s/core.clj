@@ -1,4 +1,8 @@
 (ns u-s.core
+  (:use [compojure.route :only [files not-found]]
+        [compojure.handler :only [site]]
+        [compojure.core :only [defroutes GET POST DELETE ANY context]]
+         org.httpkit.server)
   (:require [taoensso.carmine :as car :refer (wcar)])
   (:gen-class))
 
@@ -36,6 +40,15 @@
   (let [bag (shuffle bag)]
     [(first bag) (rest bag)]))
 
-(defn -main
-  [& args])
+(defn ws [req]
+  (with-channel req channel
+    (on-close channel (fn [status] (println "channel closed: " status)))
+    (on-receive channel (fn [data] (send! channel data)))))
 
+(defroutes all-routes
+  (GET "/" [] "HI")
+  (GET "/ws" [] ws))
+
+(defn -main
+  [& args]
+  (run-server (site #'all-routes) {:port 8080}))
