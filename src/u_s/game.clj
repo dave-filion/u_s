@@ -74,6 +74,3 @@
 (defn score-row [row]
   (score-cell row 0 0))
 
-(def row [{:l 0} {:l 0} {:l 1} {:l 2} {:l 0} {:l 5} {:l 0} {:l 10} {:l 2}])
-
-(assert (= (score-row row) 15))
