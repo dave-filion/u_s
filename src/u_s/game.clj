@@ -50,10 +50,30 @@
                   (assoc space :tile
                          (make-tile letter player))))))
 
-;; Play word
-
-(def letters [{:x 1 :y 1 :letter "A"} {:x 2 :y 1 :letter "T"}])
-
 (defn all-same [coll]
   (= (count (distinct coll)) 1))
 
+(assert (all-same [1 1 1]))
+(assert (not (all-same [1 2 3])))
+
+(defn not-zero? [num]
+  (not (zero? num)))
+
+(defn score-cell [tiles previous-score total-score]
+  (let [[cur & rest] tiles]
+    (if (nil? cur)
+      total-score
+      (let [score (:l cur)]
+        (if (and (not-zero? previous-score) (not-zero? score))
+          (let [new-score (+ previous-score score)]
+            (recur rest new-score (+ total-score new-score)))
+          (if (nil? score)
+            (recur rest 0 total-score)
+            (recur rest score total-score)))))))
+
+(defn score-row [row]
+  (score-cell row 0 0))
+
+(def row [{:l 0} {:l 0} {:l 1} {:l 2} {:l 0} {:l 5} {:l 0} {:l 10} {:l 2}])
+
+(assert (= (score-row row) 15))
