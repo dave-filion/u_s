@@ -56,20 +56,21 @@
 (defn not-zero? [num]
   (not (zero? num)))
 
-(defn not-nil-or-zero? [num]
-  (and (not (nil? num)) (not (zero? num))))
+(defn not-nil-nor-zero? [num]
+  (and (not (nil? num))
+       (not (zero? num))))
 
-(assert (not-nil-or-zero? 1))
+(assert (not-nil-nor-zero? 1))
 
 (defn score-row [row]
-  (loop [[current next & rest] row
+  (loop [[current & rest] row
          previous 0
          total 0]
     (if (nil? current) total
-        (let [all-rest (cons next rest)]
-          (if (or (not-nil-or-zero? previous) (not-nil-or-zero? next))
-            (recur all-rest current (+ total current))
-            (recur all-rest current total))))))
+        (if (or (not-nil-nor-zero? previous)
+                (not-nil-nor-zero? (first rest)))
+          (recur rest current (+ total current))
+          (recur rest current total)))))
 
 (score-row [1 0 3 4 5 0 5 1])
 
@@ -78,18 +79,25 @@
    [6  7  8  9 ]
    [11 12 13 14]])
 
-(defn horizontal-rows-score [board]
-  (reduce + (map #(score-row %1) board)))
+(defn horizontal-rows-score [board-rows]
+  (->> board-rows
+       (map score-row)
+       (reduce +)))
 
-(defn v-row [board num]
-  (reduce #(conj %1 (nth %2 num)) [] board))
+(defn nth-vertical-row [board-rows n]
+  (reduce #(conj %1 (nth %2 n)) [] board-rows))
 
-(defn vertical-rows [board]
-  ;; assumes board is uniform width
-  (map #(v-row board %1) (range (count (first board)))))
+(defn vertical-rows [board-rows]
+  ;; assumes board-rows is uniform width
+  (let [num-vertical-rows (range (count (first board-rows)))]
+    (map #(nth-vertical-row board-rows %1) num-vertical-rows)))
 
-(defn vertical-rows-score [board]
-  (reduce + (map #(score-row %1) (vertical-rows board))))
+(defn vertical-rows-score [board-rows]
+  (reduce + (map #(score-row %1) (vertical-rows board-rows))))
 
-(horizontal-rows-score test-board)
-(vertical-rows-score test-board)
+(assert (= 90 (horizontal-rows-score test-board)))
+(assert (= 90 (vertical-rows-score test-board)))
+
+(defn score-board [board]
+  (+ (vertical-rows-score board) (horizontal-rows-score board)))
+(assert (= 180 (score-board test-board)))
