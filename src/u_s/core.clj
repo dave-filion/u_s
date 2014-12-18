@@ -29,5 +29,3 @@
   [& args]
   (println "Starting server...")
   (run-server (site #'all-routes) {:port 8080}))
-
-(print-map {})

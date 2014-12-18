@@ -53,24 +53,36 @@
 (defn all-same [coll]
   (= (count (distinct coll)) 1))
 
-(assert (all-same [1 1 1]))
-(assert (not (all-same [1 2 3])))
-
 (defn not-zero? [num]
   (not (zero? num)))
 
-(defn score-cell [tiles previous-score total-score]
-  (let [[cur & rest] tiles]
-    (if (nil? cur)
-      total-score
-      (let [score (:l cur)]
-        (if (and (not-zero? previous-score) (not-zero? score))
-          (let [new-score (+ previous-score score)]
-            (recur rest new-score (+ total-score new-score)))
-          (if (nil? score)
-            (recur rest 0 total-score)
-            (recur rest score total-score)))))))
+(defn not-nil-or-zero? [num]
+  (and (not (nil? num)) (not (zero? num))))
+
+(assert (not-nil-or-zero? 1))
 
 (defn score-row [row]
-  (score-cell row 0 0))
+  (loop [[current next & rest] row
+         previous 0
+         total 0]
+    (if (nil? current) total
+        (let [all-rest (cons next rest)]
+          (if (or (not-nil-or-zero? previous) (not-nil-or-zero? next))
+            (recur all-rest current (+ total current))
+            (recur all-rest current total))))))
+
+(score-row [1 0 3 4 5 0 5 1])
+
+(def test-board
+  [[1  2  3  4 ]
+   [6  7  8  9 ]
+   [11 12 13 14]])
+
+(defn horizontal-rows [board]
+  (map #(score-row %1) board))
+
+(horizontal-rows test-board)
+
+
+
 
