@@ -78,11 +78,18 @@
    [6  7  8  9 ]
    [11 12 13 14]])
 
-(defn horizontal-rows [board]
-  (map #(score-row %1) board))
+(defn horizontal-rows-score [board]
+  (reduce + (map #(score-row %1) board)))
 
-(horizontal-rows test-board)
+(defn v-row [board num]
+  (reduce #(conj %1 (nth %2 num)) [] board))
 
+(defn vertical-rows [board]
+  ;; assumes board is uniform width
+  (map #(v-row board %1) (range (count (first board)))))
 
+(defn vertical-rows-score [board]
+  (reduce + (map #(score-row %1) (vertical-rows board))))
 
-
+(horizontal-rows-score test-board)
+(vertical-rows-score test-board)
